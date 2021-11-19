@@ -3,7 +3,7 @@ Process public images from La Palma FLIR cameras
 
 Contains:
 
-png2gif_vulcan - reads images and creates a gif for each hour of data
+png2gif_vulcan.py - reads images and creates a gif for each hour of data
 
 Data source:
 
