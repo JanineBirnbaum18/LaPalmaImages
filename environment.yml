@@ -1,0 +1,11 @@
+name: la-palma
+channels:
+  - defaults
+dependencies:
+  - PIL
+  - requests
+  - urllib
+  - bs4
+  - numpy
+  - pandas
+  
