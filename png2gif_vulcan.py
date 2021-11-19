@@ -14,27 +14,24 @@ from urllib.parse import urlparse, urljoin
 import numpy as np
 import pandas as pd
 import os
+import sys
+
+try: 
+    days = np.array(eval(sys.argv[1]))
+    print(days)
+except: 
+    days = 0
 
 url = 'http://vulcan1.ldeo.columbia.edu/vulcand/ldeo/raw/data/siteCv/IrCam2/PalmaImgSiteCv2021-11/'
 req = requests.get(url)
 soup = BeautifulSoup(req.content, 'html.parser')
 
-df = pd.DataFrame({'png':soup.find_all('a')})
-df = df.loc[df.png.apply(lambda x: 'Palma' in str(x))]
-df['month'] = df.png.apply(lambda x: str(x).split('_')[0].split('-')[-2])
-df['day'] = df.png.apply(lambda x: str(x).split('_')[0].split('-')[-1])
-df['hr'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][0:2]))
-df['m'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][2:4]))
-df['sec'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][4:6]))
-df['time_num'] = df.hr*3600 + df.m*60 + df.sec
-gb = df.groupby('day')
-
-for group in gb: 
+def get_min_data(group):
     gif_day = []
     for hr in group[1].groupby('hr'):
         gif = []
         dat = hr[1].sort_values('m')
-        
+       
         try:
             os.path.exists('11-' + group[0]  + '-' + str(hr[0]) + '.gif')
         except: 
@@ -51,4 +48,25 @@ for group in gb:
             gif[0].save('11-' + group[0]  + '-' + str(hr[0]) + '.gif', save_all=True,optimize=False, append_images=gif[1:], loop=0)
         gif_day += gif
     gif_day[0].save('11-' + group[0]  + '-' + str(hr[0]) + '.gif', save_all=True,optimize=False, append_images=gif_day[1:], loop=0)
-            
+       
+df = pd.DataFrame({'png':soup.find_all('a')})
+df = df.loc[df.png.apply(lambda x: 'Palma' in str(x))]
+df['month'] = df.png.apply(lambda x: str(x).split('_')[0].split('-')[-2])
+df['day'] = df.png.apply(lambda x: str(x).split('_')[0].split('-')[-1])
+df['hr'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][0:2]))
+df['m'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][2:4]))
+df['sec'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][4:6]))
+df['time_num'] = df.hr*3600 + df.m*60 + df.sec
+gb = df.groupby('day')
+     
+if (days>0).any():
+    for group in gb:
+        if group[0] in days:
+            print(group[0])
+        #get_min_data(group)
+
+else: 
+    for group in gb:
+        print(group[0])
+        #get_min_data(group)
+
