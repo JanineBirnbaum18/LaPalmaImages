@@ -17,10 +17,12 @@ import os
 import sys
 
 try: 
-    days = np.array(eval(sys.argv[1]))
-    print(days)
+    days = np.array(sys.argv[1],dtype=int)
+    if days == np.array(0):
+        days=0
 except: 
     days = 0
+print(days)
 
 url = 'http://vulcan1.ldeo.columbia.edu/vulcand/ldeo/raw/data/siteCv/IrCam2/PalmaImgSiteCv2021-11/'
 req = requests.get(url)
@@ -58,15 +60,15 @@ df['m'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][2:4]))
 df['sec'] = df.png.apply(lambda x: int(str(x).split('_')[-1].split('-')[0][4:6]))
 df['time_num'] = df.hr*3600 + df.m*60 + df.sec
 gb = df.groupby('day')
-     
-if (days>0).any():
-    for group in gb:
-        if group[0] in days:
-            print(group[0])
-        #get_min_data(group)
 
-else: 
+if type(days)==int:
+    for group in gb:
+        if (days==0) or (group[0]==days):
+            get_min_data(group)
+    
+else:
     for group in gb:
         print(group[0])
-        #get_min_data(group)
+        if int(group[0]) in days: 
+            get_min_data(group)
 
